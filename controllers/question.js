@@ -6,11 +6,13 @@ const Question = require('../models/Questions');
 // @route     GET /api/v1/question
 // @access    private
 exports.getQuestions = asyncHandler(async (req, res, next) => {
-  const question = await Question.find({}).populate({
-    path: 'chapters',
-    select: 'number',
-    populate: { path: 'course', select: 'name' },
-  });
+  const question = await Question.find({})
+    .populate({
+      path: 'chapters',
+      select: 'number',
+      populate: { path: 'course', select: 'name' },
+    })
+    .populate({ path: 'user', select: 'name' });
   res.status(200).json({
     status: true,
     data: question,
@@ -20,11 +22,13 @@ exports.getQuestions = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/question/:id
 // @access    private
 exports.getQuestion = asyncHandler(async (req, res, next) => {
-  const question = await Question.findById(req.params.id).populate({
-    path: 'chapters',
-    select: 'number',
-    populate: { path: 'course', select: 'name' },
-  });
+  const question = await Question.findById(req.params.id)
+    .populate({
+      path: 'chapters',
+      select: 'number',
+      populate: { path: 'course', select: 'name' },
+    })
+    .populate({ path: 'user', select: 'name' });
 
   if (!question) {
     return next(new ErrorResponse('هذا السوال غير موجود'));
@@ -57,6 +61,17 @@ exports.updateQuestion = asyncHandler(async (req, res, next) => {
   if (!question) {
     return next(new ErrorResponse('هذا السوال غير موجود'));
   }
+
+  // Make sure user is question owner
+  if (Question.user !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`غير مسموح لك بتعديل هذا السؤال`, 401));
+  }
+
+  question = await Question.findOneAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
   // question.markModified();
   res.status(200).json({
     success: true,
@@ -74,7 +89,12 @@ exports.deleteQuestion = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('هذا السوال غير موجود'));
   }
 
-  question.remove();
+  // make sure that the user how add the question and the admin only the users can delete the Quesiton
+  if (question.user == req.user.id || req.user.role == 'admin') {
+    question.remove();
+  } else {
+    return next(new ErrorResponse(`غير مسموح لك بحدف هذا السؤال`));
+  }
 
   res.status(200).json({
     success: true,

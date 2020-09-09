@@ -13,11 +13,17 @@ const advancedResults = require('../middleware/advancedResults');
 
 const router = express.Router({ mergeParams: true });
 
+const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
+
 router
   .route('/')
-  .get(advancedResults(Chapters), getChapters)
+  .get(advancedResults(Chapters), ensureAuthenticated, getChapters)
   .post(createChapter);
 
-router.route('/:id').get(getChapter).put(updateChapter).delete(deleteChapter);
+router
+  .route('/:id')
+  .get(ensureAuthenticated, getChapter)
+  .put(ensureAuthenticated, updateChapter)
+  .delete(ensureAuthenticated, deleteChapter);
 
 module.exports = router;

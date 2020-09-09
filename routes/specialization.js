@@ -13,16 +13,17 @@ const Specialization = require('../models/Specialization');
 const router = express.Router({ mergeParams: true });
 
 const advancedResults = require('../middleware/advancedResults');
+const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 
 router
   .route('/')
-  .get(advancedResults(Specialization), getSpecializations)
-  .post(createSpecialization);
+  .get(advancedResults(Specialization), ensureAuthenticated, getSpecializations)
+  .post(createSpecialization, ensureAuthenticated);
 
 router
   .route('/:id')
-  .get(getSpecialization)
-  .put(updateSpecialization)
-  .delete(deleteSpecialization);
+  .get(ensureAuthenticated, getSpecialization)
+  .put(ensureAuthenticated, updateSpecialization)
+  .delete(ensureAuthenticated, deleteSpecialization);
 
 module.exports = router;

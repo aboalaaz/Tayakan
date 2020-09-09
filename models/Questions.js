@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('../models/User');
 
 // This Schema for Generate Questions (True or False, Fill the Blanck, Multi Choice)
 const QuestionSchema = new mongoose.Schema({
@@ -32,6 +33,15 @@ const QuestionSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Chapter',
     required: [true, 'الرجاء ادخال الفصل الخاص بسؤال'],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true,
   },
 });
 
