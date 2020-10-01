@@ -15,7 +15,7 @@ exports.getQuestions = asyncHandler(async (req, res, next) => {
     .populate({ path: 'user', select: 'name' });
   res.status(200).json({
     status: true,
-    data: question,
+    data: res.advancedResults,
   });
 });
 // @desc      Get single Question

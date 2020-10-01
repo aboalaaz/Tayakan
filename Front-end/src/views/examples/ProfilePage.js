@@ -1,4 +1,9 @@
-import React from "react";
+import React from 'react';
+import Select from 'react-select';
+import axios from 'axios';
+import { USER_SERVER } from '../../components/Config';
+import { useSelector, useStore } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
 
 // reactstrap components
 import {
@@ -14,175 +19,306 @@ import {
   Container,
   Row,
   Col,
-} from "reactstrap";
+  Card,
+  CardBody,
+  CardTitle,
+  CardFooter,
+  UncontrolledTooltip,
+  Checkbox,
+} from 'reactstrap';
 
 // core components
-import ColorNavbar from "components/Navbars/ColorNavbar.js";
-import ProfilePageHeader from "components/Headers/ProfilePageHeader.js";
-import FooterWhite from "components/Footers/FooterWhite.js";
+import ColorNavbarFixed from 'components/Navbars/ColorNavbarFixed';
+import CourseCard from 'components/CourseCard';
+import FooterWhite from 'components/Footers/FooterWhite.js';
+import ImageUpload from 'components/CustomUpload/ImageUpload.js';
+import { set } from 'mongoose';
+import { createKeywordTypeNode } from 'typescript';
 
 function ProfilePage() {
-  const [activeTab, setActiveTab] = React.useState("1");
+  const user = useSelector((state) => state.user);
 
-  const toggle = (tab) => {
-    if (activeTab !== tab) {
-      setActiveTab(tab);
-    }
+  let [selectedCourses, setSelectedCourses] = React.useState([]); // المواد المتاحه من الكورس المختار
+  const [successSelect, setSuccessSelect] = React.useState(null); //  التخصص المختار من قائمه التخصصات
+  const [selectOptions, setSelectOptions] = React.useState([]); // قائمة التخصصات المتوفره
+  const [userdata, setUserData] = React.useState([]); // بيانات الحساب المسجل
+  const [coursesData, setCoursesData] = React.useState([]); // بيانات كل الماواد الخاصه باالتخصص المختار
+  const [userCoursesCard, setUserCoursesCard] = React.useState([]); // التخصصات المسجله مسبقا للمستخدم
+  const [isCardOpen, setisCardOpen] = React.useState(false); // اذا كان true يسمح بعرض قوائم المواد
+  const [
+    userspecializationCourses,
+    setUserspecializationCourses,
+  ] = React.useState([]); //
+
+  if (user.userData && userdata.length === 0) {
+    setUserData(user.userData);
+  }
+  // console.log(userdata);
+
+  //هنا يتم طلب التخصصات المتوفره من قاعدة البيانات
+  const getOptions = async () => {
+    await axios
+      .get(`${USER_SERVER}/specialization`)
+      .then((response) => {
+        if (response.data.success) {
+          const data = response.data.data.data;
+          let options = data.map((specializations) => ({
+            value: specializations._id,
+            label: specializations.specName,
+            code: specializations.code,
+          }));
+
+          setSelectOptions(options);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
-  document.documentElement.classList.remove("nav-open");
+  //بعد اختيار المستخدم التخصص يتم طلب مواد التخصص
+  const getCourses = async () => {
+    await axios
+      .get(`${USER_SERVER}/courses/?specialization=${successSelect.value}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setCoursesData(res.data.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+  // طلب المواد التخصص على حسب تخصص المستخدم
+  // const getUserspecializationCourses = async () => {
+  //   if (userspecializationCourses.length < 1 && user.userData) {
+  //     const res = await axios.get(
+  //       `${USER_SERVER}/courses/?specialization=${userdata.specialization}`,
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
+  //     setUserspecializationCourses(res.data.data.data);
+  //   } else {
+  //     return null;
+  //   }
+  // };
+
+  console.log(userspecializationCourses);
+
+  // عند اختيار المستخدم التخصصات المراده يتم ارسالها لقاعدة البيانات
+  const sendCourses = () => {
+    axios
+      .put(
+        `${USER_SERVER}/me`,
+        {
+          courses: selectedCourses,
+          specialization: successSelect.value,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((response) => response.data)
+      .catch(function (error) {
+        console.log(error);
+      });
+    setisCardOpen(false);
+  };
+  console.log(userspecializationCourses);
+  //جلب الكورسات المختاره سابقا
+  // const getUserCourses = async () => {
+  //   await userspecializationCourses.map((usercourses) => {
+  //     if (userdata.courses.includes(usercourses._id)) {
+  //       if (userCoursesCard.includes(usercourses)) {
+  //         return null;
+  //       } else {
+  //         setUserCoursesCard([...userCoursesCard, usercourses]);
+  //       }
+  //     } else {
+  //       return null;
+  //     }
+  //   });
+  // };
+
   React.useEffect(() => {
-    document.body.classList.add("profile-page");
+    getUserspecializationCourses();
+    // getUserCourses();
+    document.documentElement.classList.remove('nav-open');
+
+    document.body.classList.add('profile-page');
     return function cleanup() {
-      document.body.classList.remove("profile-page");
+      document.body.classList.remove('profile-page');
     };
   });
+  React.useEffect(() => {
+    getOptions();
+  }, []);
+  console.log(isCardOpen);
   return (
     <>
-      <ColorNavbar />
-      <ProfilePageHeader />
-      <div className="wrapper">
-        <div className="profile-content section">
+      <ColorNavbarFixed />
+      {/* <ProfilePageHeader /> */}
+      <div
+        className="profile-content section"
+        style={{
+          backgroundColor: '#f6f4e6',
+          margin: 0,
+          padding: 0,
+        }}
+      >
+        <Container
+          style={{
+            backgroundColor: '#fff',
+            paddingTop: '20rem',
+            marginBottom: '-10rem',
+          }}
+        >
+          <Row>
+            <Col className="ml-auto mr-auto text-center" md="6">
+              <ImageUpload avatar />
+              <FormGroup className="has-success">
+                <Input
+                  className="form-control-success"
+                  // defaultValue="Success"
+                  placeholder="Username *"
+                  id="inputSuccess"
+                  type="text"
+                />
+              </FormGroup>
+              <FormGroup className="has-success">
+                <Input
+                  className="form-control-success"
+                  // defaultValue="Success"
+                  placeholder="Bio"
+                  id="inputSuccess"
+                  type="textarea"
+                />
+              </FormGroup>
+              <h4>YOUR COURSES</h4>
+              {userCoursesCard ? console.log(userCoursesCard) : null}
+
+              <hr />
+              <FormGroup>
+                <Select
+                  className="react-select react-select-success"
+                  classNamePrefix="react-select"
+                  name="successSelect"
+                  value={successSelect}
+                  onChange={function hendleOnChenga(value) {
+                    setSuccessSelect(value);
+                    setisCardOpen(true);
+                  }}
+                  options={selectOptions}
+                  // placeholder={
+                  //   userdata
+                  //     ? userdata.specialization.name
+                  //     : 'CHOOSE SPECIALIZATION'
+                  // }
+                />
+              </FormGroup>
+
+              {successSelect ? (
+                <Card data-color="purple">
+                  <CardBody className="text-center">
+                    <h5 className="card-category">{successSelect.label}</h5>
+                    <h5 className="card-category">{successSelect.code}</h5>
+                    <CardTitle tag="h5">
+                      <a href="#pablo" onClick={(e) => e.preventDefault()}>
+                        "Good Design Is as Little Design as Possible"
+                      </a>
+                    </CardTitle>
+                    <p className="card-description">
+                      Design makes an important contribution to the preservation
+                      of the environment. It conserves resources and minimises
+                      physical and visual pollution throughout the lifecycle of
+                      the product....
+                    </p>
+                    <CardFooter className="text-center">
+                      {/* <Button
+                        className="btn-round btn-just-icon mr-1"
+                        color="neutral"
+                        href="#pablo"
+                        outline
+                        id="tooltip275070155"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <i className="fa fa-bookmark-o" />
+                      </Button>
+                      <UncontrolledTooltip delay={0} target="tooltip275070155">
+                        Bookmark
+                      </UncontrolledTooltip> */}
+                      <Button
+                        className="btn-neutral btn-round"
+                        color="default"
+                        href="#pablo"
+                        onClick={getCourses}
+                      >
+                        {/* <i className="fa fa-newspaper-o mr-1" /> */}
+                        Choose Subjects
+                      </Button>
+                    </CardFooter>
+                  </CardBody>
+                </Card>
+              ) : null}
+              {coursesData ? <hr style={{ padding: '1rem' }} /> : null}
+            </Col>
+          </Row>
           <Container>
             <Row>
-              <div className="profile-picture">
-                <div
-                  className="fileinput fileinput-new"
-                  data-provides="fileinput"
-                >
-                  <div className="fileinput-new img-no-padding">
-                    <img
-                      alt="..."
-                      src={require("assets/img/faces/joe-gardner-2.jpg")}
-                    />
-                  </div>
-                  <div className="name">
-                    <h4 className="title text-center">
-                      Chet Faker <br />
-                      <small>Music Producer</small>
-                    </h4>
-                  </div>
+              {coursesData && isCardOpen
+                ? coursesData.map((coursesData) => {
+                    {
+                      return (
+                        <CourseCard
+                          key={coursesData._id}
+                          // id={coursesData._id}
+                          name={coursesData.name}
+                          code={coursesData.code}
+                          click={() => {
+                            if (selectedCourses.includes(coursesData._id)) {
+                              selectedCourses = selectedCourses.filter(
+                                (item) => {
+                                  return item !== coursesData._id;
+                                }
+                              );
+                              setSelectedCourses(selectedCourses);
+                            } else {
+                              setSelectedCourses([
+                                ...selectedCourses,
+                                coursesData._id,
+                              ]);
+                            }
+                            // //   setHowsckicked(coursesData.name);
+                          }}
+                        />
+                      );
+                    }
+                  })
+                : null}
+            </Row>
+            <Col className="ml-auto mr-auto text-center" md="6">
+              {selectedCourses.length !== 0 && isCardOpen ? (
+                <div>
+                  {/* <h3>{selectedCourses}</h3> */}
+                  <Button
+                    className="btn-round "
+                    color="success"
+                    outline
+                    type="button"
+                    onClick={sendCourses}
+                  >
+                    Done
+                  </Button>
                 </div>
-              </div>
-            </Row>
-            <Row>
-              <Col className="ml-auto mr-auto text-center" md="6">
-                <p>
-                  An artist of considerable range, Chet Faker — the name taken
-                  by Melbourne-raised, Brooklyn-based Nick Murphy — writes,
-                  performs and records all of his own music, giving it a warm,
-                  intimate feel with a solid groove structure.
-                </p>
-                <br />
-                <Button className="btn-round" color="default" outline>
-                  <i className="fa fa-cog mr-1" />
-                  Settings
-                </Button>
-              </Col>
-            </Row>
-            <br />
-            <div className="nav-tabs-navigation">
-              <div className="nav-tabs-wrapper">
-                <Nav role="tablist" tabs>
-                  <NavItem>
-                    <NavLink
-                      className={activeTab === "1" ? "active" : ""}
-                      onClick={() => {
-                        toggle("1");
-                      }}
-                    >
-                      Follows
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink
-                      className={activeTab === "2" ? "active" : ""}
-                      onClick={() => {
-                        toggle("2");
-                      }}
-                    >
-                      Following
-                    </NavLink>
-                  </NavItem>
-                </Nav>
-              </div>
-            </div>
-            {/* Tab panes */}
-            <TabContent className="following" activeTab={activeTab}>
-              <TabPane tabId="1" id="follows">
-                <Row>
-                  <Col className="ml-auto mr-auto" md="6">
-                    <ul className="list-unstyled follows">
-                      <li>
-                        <Row>
-                          <Col className="ml-auto mr-auto" lg="2" md="4" xs="4">
-                            <img
-                              alt="..."
-                              className="img-circle img-no-padding img-responsive"
-                              src={require("assets/img/faces/clem-onojeghuo-3.jpg")}
-                            />
-                          </Col>
-                          <Col className="ml-auto mr-auto" lg="7" md="4" xs="4">
-                            <h6>
-                              Lincoln <br />
-                              <small>Car Producer</small>
-                            </h6>
-                          </Col>
-                          <Col className="ml-auto mr-auto" lg="3" md="4" xs="4">
-                            <FormGroup check>
-                              <Label check>
-                                <Input
-                                  defaultChecked
-                                  defaultValue=""
-                                  type="checkbox"
-                                />
-                                <span className="form-check-sign" />
-                              </Label>
-                            </FormGroup>
-                          </Col>
-                        </Row>
-                      </li>
-                      <hr />
-                      <li>
-                        <Row>
-                          <Col className="mx-auto" lg="2" md="4" xs="4">
-                            <img
-                              alt="..."
-                              className="img-circle img-no-padding img-responsive"
-                              src={require("assets/img/faces/erik-lucatero-2.jpg")}
-                            />
-                          </Col>
-                          <Col lg="7" md="4" xs="4">
-                            <h6>
-                              Banks <br />
-                              <small>Singer</small>
-                            </h6>
-                          </Col>
-                          <Col lg="3" md="4" xs="4">
-                            <FormGroup check>
-                              <Label check>
-                                <Input defaultValue="" type="checkbox" />
-                                <span className="form-check-sign" />
-                              </Label>
-                            </FormGroup>
-                          </Col>
-                        </Row>
-                      </li>
-                    </ul>
-                  </Col>
-                </Row>
-              </TabPane>
-              <TabPane className="text-center" tabId="2" id="following">
-                <h3 className="text-muted">Not following anyone yet :(</h3>
-                <Button className="btn-round" color="warning">
-                  Find artists
-                </Button>
-              </TabPane>
-            </TabContent>
+              ) : null}
+            </Col>
           </Container>
-        </div>
+          <div style={{ paddingTop: '3rem' }}>
+            <FooterWhite />
+          </div>
+        </Container>
       </div>
-      <FooterWhite />
     </>
   );
 }

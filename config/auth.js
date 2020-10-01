@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const passport = require('passport');
 
 module.exports = {
   // لحمايه الراوت وتاكد من ان الزائر مسجل الدخول
@@ -7,7 +8,7 @@ module.exports = {
       return next();
     }
     req.flash('error_msg', 'Please log in to view that resource');
-    res.redirect('/api/v1/auth/login');
+    // res.redirect('/api/v1/auth/login');
   },
 
   //عكس الداله الاولى
@@ -18,12 +19,14 @@ module.exports = {
     res.redirect('/dashboard');
   },
 
+  //عكس الداله الاولى
+
   // لتاكد من نوع الحساب وبنائا على ذلك يسمحل له بدخول على راوت معين ام لا
   roleAuthorization: function (roles) {
     return function (req, res, next) {
-      var user = req.user;
+      const userID = req.session.passport.user;
 
-      User.findById(user._id, function (err, foundUser) {
+      User.findById(userID, function (err, foundUser) {
         if (err) {
           res.status(422).json({ error: 'No user found.' });
           return next(err);
@@ -39,5 +42,23 @@ module.exports = {
         return next('Unauthorized');
       });
     };
+  },
+
+  auth: async function (req, res, next) {
+    if (!req.isAuthenticated()) {
+      return res.json({
+        isAuth: false,
+        error: true,
+      });
+    }
+    if (req.isAuthenticated()) {
+      // let userID = req.session.passport.user;
+      // await User.findById({ _id: userID }, (err, userID) => {
+      //   if (err) throw err;
+
+      //   req.userID = userID;
+      next();
+      // });
+    }
   },
 };

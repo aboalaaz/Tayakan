@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     // required: [true, `الرجاء ادخال اسم المستخدم `],
-    unique: [true, `اسم المستخدم مستخدم`],
+    // unique: [true, `اسم المستخدم مستخدم`],
     maxlength: 15,
   },
   name: {
@@ -34,6 +34,12 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Specialization',
   },
+  article: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Article',
+    },
+  ],
   courses: [
     {
       type: mongoose.Schema.ObjectId,
@@ -52,6 +58,12 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  comments: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Comment',
+    },
+  ],
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 });

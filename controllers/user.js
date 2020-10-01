@@ -12,6 +12,9 @@ const fileUpload = require('express-fileupload');
 exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
 
+  console.log('sessionID:' + req.session);
+  // console.log('session_cookie:' + req.session);
+
   res.status(200).json({
     success: true,
     data: user,
@@ -23,8 +26,7 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @access    Private
 
 exports.getMyID = asyncHandler(async (req, res, next) => {
-  const ID = await User.findById(req.user.id).select('_id name role');
-
+  const ID = await User.findById(req.user).select('_id name role');
   res.status(200).json({
     success: true,
     data: ID,
@@ -35,12 +37,12 @@ exports.getMyID = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/auth/updatedetails
 // @access    Private
 exports.updateDetails = asyncHandler(async (req, res, next) => {
-  const fieldsToUpdate = {
-    name: req.body.name,
-    email: req.body.email,
-  };
+  // const fieldsToUpdate = {
+  //   name: req.body.name,
+  //   email: req.body.email,
+  // };
 
-  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+  const user = await User.findByIdAndUpdate(req.user, req.body, {
     new: true,
     runValidators: true,
   });

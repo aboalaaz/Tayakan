@@ -24,8 +24,7 @@ router
   .route('/')
   .get(
     advancedResults(User),
-    ensureAuthenticated,
-    roleAuthorization(['admin']),
+
     getUsers
   )
   .post(createUser);

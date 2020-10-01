@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 // reactstrap components
 import {
@@ -10,27 +10,28 @@ import {
   Container,
   Row,
   Col,
-} from "reactstrap";
+} from 'reactstrap';
 
 // core components
-import ColorNavbar from "components/Navbars/ColorNavbar.js";
-import AboutUsHeader from "components/Headers/AboutUsHeader.js";
-import FooterAboutUs from "components/Footers/FooterAboutUs.js";
+import ColorNavbar from 'components/Navbars/ColorNavbar.js';
+import TestNav from 'components/Navbars/TestNav';
+import LandingPageHeader from 'components/Headers/LandingPageHeader.js';
+import FooterAboutUs from 'components/Footers/FooterAboutUs.js';
 
 function AboutUs() {
-  document.documentElement.classList.remove("nav-open");
+  document.documentElement.classList.remove('nav-open');
   React.useEffect(() => {
-    document.body.classList.add("about-us");
+    document.body.classList.add('about-us');
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     return function cleanup() {
-      document.body.classList.remove("about-us");
+      document.body.classList.remove('about-us');
     };
   });
   return (
     <>
       <ColorNavbar />
-      <AboutUsHeader />
+      <LandingPageHeader />
       <div className="main">
         <div className="section">
           <Container>
@@ -67,7 +68,7 @@ function AboutUs() {
                       <a href="#pablo" onClick={(e) => e.preventDefault()}>
                         <img
                           alt="..."
-                          src={require("assets/img/faces/ayo-ogunseinde-2.jpg")}
+                          src={require('assets/img/faces/ayo-ogunseinde-2.jpg')}
                         />
                         <CardTitle tag="h4">Eric Thomson</CardTitle>
                       </a>
@@ -114,7 +115,7 @@ function AboutUs() {
                       <a href="#pablo" onClick={(e) => e.preventDefault()}>
                         <img
                           alt="..."
-                          src={require("assets/img/faces/joe-gardner-2.jpg")}
+                          src={require('assets/img/faces/joe-gardner-2.jpg')}
                         />
                         <CardTitle tag="h4">Sophia West</CardTitle>
                       </a>
@@ -161,7 +162,7 @@ function AboutUs() {
                       <a href="#pablo" onClick={(e) => e.preventDefault()}>
                         <img
                           alt="..."
-                          src={require("assets/img/faces/clem-onojeghuo-2.jpg")}
+                          src={require('assets/img/faces/clem-onojeghuo-2.jpg')}
                         />
                         <CardTitle tag="h4">Lucas Andrew</CardTitle>
                       </a>

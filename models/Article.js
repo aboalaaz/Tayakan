@@ -15,7 +15,6 @@ const articleSchema = new mongoose.Schema({
   by: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: [true, `الراجاء اضافة كاتب المقاله`],
   },
 });
 

@@ -15,6 +15,7 @@ const {
   ensureAuthenticated,
   forwardAuthenticated,
   roleAuthorization,
+  auth,
 } = require('../config/auth');
 const { route } = require('./dashboard');
 

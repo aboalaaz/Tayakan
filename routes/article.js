@@ -8,6 +8,7 @@ const {
   deleteArticle,
 } = require('../controllers/article');
 const Article = require('../models/Article');
+const User = require('../models/User');
 
 const advancedResults = require('../middleware/advancedResults');
 
@@ -18,8 +19,12 @@ const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 router
   .route('/')
   .get(advancedResults(Article), getArticles)
-  .post(createArticle);
+  .post(ensureAuthenticated, createArticle);
 
-router.route('/:id').get(getArticle).put(updateArticle).delete(deleteArticle);
+router
+  .route('/:id')
+  .get(getArticle)
+  .put(ensureAuthenticated, updateArticle)
+  .delete(ensureAuthenticated, deleteArticle);
 
 module.exports = router;

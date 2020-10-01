@@ -12,6 +12,6 @@ exports.getUsersByPoints = asyncHandler(async (req, res, next) => {
     .exec();
   res.status(200).json({
     success: true,
-    data: usersbypoint,
+    data: res.advancedResults,
   });
 });

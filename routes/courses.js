@@ -23,14 +23,7 @@ const {
 
 router
   .route('/')
-  .get(
-    advancedResults(Courses, {
-      path: 'course',
-      select: 'name description',
-    }),
-    ensureAuthenticated,
-    getCourses
-  )
+  .get(advancedResults(Courses), ensureAuthenticated, getCourses)
   .post(ensureAuthenticated, createCourse);
 
 router

@@ -1,8 +1,10 @@
-import React from 'react';
 import Switch from 'react-bootstrap-switch';
 import sure_logo from '../../assets/img/sure_logo.svg';
-// impotr axios
-import axios from 'axios';
+import React from 'react';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { registerUser } from '../../_actions/user_actions';
+import { useDispatch } from 'react-redux';
 
 // reactstrap components
 import {
@@ -19,15 +21,9 @@ import {
 // core components
 import ColorNavbar from 'components/Navbars/ColorNavbar.js';
 
-function RegisterPage() {
+function RegisterPage(props) {
   document.documentElement.classList.remove('nav-open');
-
-  const handleForm = (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-
-    axios.post('http://localhost:5000/api/v1/register', { data });
-  };
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
     document.body.classList.add('register-page');
@@ -40,23 +36,6 @@ function RegisterPage() {
     };
   });
 
-  // React.useEffect(() => {
-  //   const postData = async () => {
-  //     const res = await axios.post(`http://localhost:5000/api/v1/users`);
-  //     console.log(res.data);
-  //     setDate(res.data);
-  //   };
-  //   postData();
-  // }, []);
-
-  // React.useEffect(() => {
-  //   const fetchData = async () => {
-  //     const res = await axios.get(`http://localhost:5000/api/v1/users`);
-  //     console.log(res.data);
-  //     setDate(res.data);
-  //   };
-  //   fetchData();
-  // }, []);
   return (
     <>
       <ColorNavbar />
@@ -122,64 +101,204 @@ function RegisterPage() {
                     <img src={sure_logo} width="10%" />
                     <div className="line r" />
                   </div>
-                  <Form className="register-form" onSubmit={handleForm}>
-                    <Input placeholder="الايميل" type="text" name="email" />
-                    <Input
-                      placeholder="كلمة المرور"
-                      type="password"
-                      name="password"
-                    />
-                    <Input
-                      placeholder="تاكيد كلمة المرور"
-                      type="password"
-                      name="password2"
-                    />
+                  <Formik
+                    initialValues={{
+                      email: '',
+                      name: '',
+                      password: '',
+                      confirmPassword: '',
+                    }}
+                    validationSchema={Yup.object().shape({
+                      name: Yup.string().required('الرجاء إدخال اسم المستخدم'),
+                      email: Yup.string()
+                        .email('الأيميل غير صحيح')
+                        .required('الرجاء أدخال الأيميل'),
+                      password: Yup.string()
+                        .min(6, 'كلمة الرور يجب ان لا تقل عن 6 خانات')
+                        .required('كلمة المرور غير صحيحه'),
+                      confirmPassword: Yup.string()
+                        .oneOf(
+                          [Yup.ref('password'), null],
+                          'كلمة المرور غير مطابقع'
+                        )
+                        .required('الرجاء إدخال تأكيد كلمة المرور'),
+                    })}
+                    onSubmit={(values, { setSubmitting }) => {
+                      setTimeout(() => {
+                        let dataToSubmit = {
+                          email: values.email,
+                          password: values.password,
+                          name: values.name,
+                        };
 
-                    <div className="division">
-                      <p style={{ fontFamily: 'Lemonada' }}> هل انت مشرف ؟</p>
-                      <p style={{ fontFamily: 'Rajdhani' }}>
-                        Are you Supervisor ?
-                      </p>
-                      <Switch
-                        defaultValue={false}
-                        offColor="success"
-                        offText={<i className="nc-icon nc-simple-remove" />}
-                        onColor="success"
-                        onText={<i className="nc-icon nc-check-2" />}
-                      />
-                    </div>
+                        dispatch(registerUser(dataToSubmit)).then(
+                          (response) => {
+                            if (response.payload.success) {
+                              props.history.push('/login');
+                            } else {
+                              console.log(response.payload);
+                              alert(response.payload.error_msg);
+                            }
+                          }
+                        );
 
-                    <Button
-                      style={{ fontFamily: 'Lemonada' }}
-                      block
-                      className="btn-round"
-                      color="success"
-                    >
-                      سجل
-                    </Button>
-                  </Form>
-                  <div className="login">
-                    <p style={{ fontFamily: 'Lemonada' }}>
-                      عندك حساب مسبقا ؟
-                      <a
-                        style={{ fontFamily: 'Lemonada' }}
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        تسجيل الدخول
-                      </a>
-                    </p>
-                  </div>
+                        setSubmitting(false);
+                      }, 500);
+                    }}
+                  >
+                    {(props) => {
+                      const {
+                        values,
+                        touched,
+                        errors,
+                        dirty,
+                        isSubmitting,
+                        handleChange,
+                        handleBlur,
+                        handleSubmit,
+                        handleReset,
+                      } = props;
+                      return (
+                        <div>
+                          <Form onSubmit={handleSubmit}>
+                            <Input
+                              id="name"
+                              placeholder="أسم المستخدم"
+                              type="text"
+                              value={values.name}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={
+                                errors.name && touched.name
+                                  ? 'text-input error'
+                                  : 'text-input'
+                              }
+                            />{' '}
+                            {errors.name && touched.name && (
+                              <div
+                                className="input-feedback"
+                                style={{
+                                  color: 'red',
+                                  textAlign: 'center',
+                                }}
+                              >
+                                {errors.name}
+                              </div>
+                            )}
+                            <Input
+                              id="email"
+                              placeholder="الأيميل"
+                              type="email"
+                              value={values.email}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={
+                                errors.email && touched.email
+                                  ? 'text-input error'
+                                  : 'text-input'
+                              }
+                            />
+                            {errors.email && touched.email && (
+                              <div
+                                className="input-feedback"
+                                style={{ color: 'red', textAlign: 'center' }}
+                              >
+                                {errors.email}
+                              </div>
+                            )}
+                            <Input
+                              id="password"
+                              placeholder="كلمة المرور"
+                              type="password"
+                              value={values.password}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={
+                                errors.password && touched.password
+                                  ? 'text-input error'
+                                  : 'text-input'
+                              }
+                            />
+                            {errors.password && touched.password && (
+                              <div
+                                className="input-feedback"
+                                style={{ color: 'red', textAlign: 'center' }}
+                              >
+                                {errors.password}
+                              </div>
+                            )}
+                            <Input
+                              id="confirmPassword"
+                              placeholder="تأكيد كلمة المرور"
+                              type="password"
+                              value={values.confirmPassword}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              className={
+                                errors.confirmPassword &&
+                                touched.confirmPassword
+                                  ? 'text-input error'
+                                  : 'text-input'
+                              }
+                            />
+                            {errors.confirmPassword && touched.confirmPassword && (
+                              <div
+                                className="input-feedback"
+                                style={{ color: 'red', textAlign: 'center' }}
+                              >
+                                {errors.confirmPassword}
+                              </div>
+                            )}
+                            <div className="division">
+                              <p style={{ fontFamily: 'Lemonada' }}>
+                                {' '}
+                                هل انت مشرف ؟
+                              </p>
+                              <p style={{ fontFamily: 'Rajdhani' }}>
+                                Are you Supervisor ?
+                              </p>
+                              <Switch
+                                defaultValue={false}
+                                offColor="success"
+                                offText={
+                                  <i className="nc-icon nc-simple-remove" />
+                                }
+                                onColor="success"
+                                onText={<i className="nc-icon nc-check-2" />}
+                              />
+                            </div>
+                            <Button
+                              onClick={handleSubmit}
+                              type="primary"
+                              disabled={isSubmitting}
+                              style={{ fontFamily: 'Lemonada' }}
+                              block
+                              className="btn-round"
+                              color="success"
+                            >
+                              سجل
+                            </Button>
+                            <div className="login">
+                              <p style={{ fontFamily: 'Lemonada' }}>
+                                عندك حساب ؟
+                                <a
+                                  style={{ fontFamily: 'Lemonada' }}
+                                  href="/login"
+                                >
+                                  {' '}
+                                  تسجيل الدخول{' '}
+                                </a>
+                              </p>
+                            </div>
+                          </Form>
+                        </div>
+                      );
+                    }}
+                  </Formik>
                 </Card>
               </Col>
             </Row>
           </Container>
-          {/* <div className="demo-footer text-center">
-            <h6>
-              © {new Date().getFullYear()}, made with{' '}
-              <i className="fa fa-heart heart" /> by Creative Tim
-            </h6>
-          </div> */}
         </div>
       </div>
     </>

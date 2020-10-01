@@ -6,8 +6,8 @@ const passport = require('passport');
 const colors = require('colors');
 const mongoSanitize = require('express-mongo-sanitize');
 const fileupload = require('express-fileupload');
-
 const errorHandler = require('./middleware/error');
+var cookieParser = require('cookie-parser');
 const session = require('express-session');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -51,8 +51,14 @@ app.use(xss());
 // Prevent hpp attack
 app.use(hpp());
 
+// Connect to datebase
+connectDB();
+
 // Enable CORS
-app.use(cors());
+// app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+
+app.use(cookieParser());
 
 app.use(express.json());
 // Express body parser
@@ -64,19 +70,34 @@ app.use(
   session({
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: new MongoStore({ url: process.env.MONGO_URI }),
     cookie: {
       path: '/',
       maxAge: 1000 * 60 * 60 * 24,
       // should by true
-      httpOnly: false,
+      httpOnly: true,
     },
   })
 );
 
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res.setHeader('Access-Control-Allow-Credentials', true);
+//   res.setHeader('Access-Control-Allow-Methods', [
+//     'PATCH',
+//     'POST',
+//     'GET',
+//     'DELETE',
+//     'PUT',
+//   ]);
+//   res.setHeader('Access-Control-Allow-Headers', ['Content-Type']);
+//   res.setHeader('Access-Control-Expose-Headers', ['Content-Type']);
+//   next();
+// });
+
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.session({ secret: 'keyboard cat' }));
 
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -89,11 +110,14 @@ app.use(flash());
 const User = require('./models/User');
 passport.use(new LocalStrategy(User.authenticate()));
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
-// Connect to datebase
-connectDB();
+// passport.serializeUser(User.serializeUser());
+passport.serializeUser(function (user, done) {
+  return done(null, user.id);
+});
+// passport.deserializeUser(User.deserializeUser());
+passport.deserializeUser(function (obj, done) {
+  return done(null, obj);
+});
 
 // File uploading
 app.use(fileupload());

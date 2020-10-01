@@ -7,7 +7,7 @@ const Courses = require('../models/Courses');
 // @route     GET /api/v1/courses
 // @access    private
 exports.getCourses = asyncHandler(async (req, res, next) => {
-  const course = await Courses.find({})
+  const course = await Courses.find()
     .populate({
       path: 'specialization',
       select: 'specName',
@@ -16,14 +16,12 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
       path: 'chapters',
       select: 'number',
       populate: { path: 'question' },
-    });
-  res
-    .status(200)
-    .json({
-      status: true,
-      data: course,
     })
     .exec();
+  res.status(200).json({
+    status: true,
+    data: res.advancedResults,
+  });
 });
 
 // @desc      Get single Course

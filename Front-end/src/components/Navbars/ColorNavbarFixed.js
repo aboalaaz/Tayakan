@@ -35,18 +35,15 @@ import sureDark from '../../assets/img/sureDark.svg';
 function ColorNavbar(props) {
   const user = useSelector((state) => state.user);
 
-  const [navbarColor, setNavbarColor] = React.useState('navbar-transparent');
+  const [navbarColor, setNavbarColor] = React.useState('');
   const [bodyClick, setBodyClick] = React.useState(false);
   const [collapseOpen, setCollapseOpen] = React.useState(false);
-  const [logo, setlogo] = React.useState(sure3);
-  // const [placeholder, setPlaceholder] = useState();
-  const [inputStyle, setInputStyle] = useState({
-    placeholder: { color: 'white' },
+  const [inputstyle, setInputStyle] = useState({
     borderRadius: 0,
     outline: 'none',
     borderWidth: '0 0 2px',
     backgroundColor: 'transparent',
-    borderColor: '#fff',
+    borderColor: '#52575d',
     borderStyle: 'solid',
     borderRedius: '0',
   });
@@ -72,7 +69,6 @@ function ColorNavbar(props) {
         document.body.scrollTop >= 499
       ) {
         setNavbarColor('');
-        setlogo(sureDark);
         setInputStyle({
           borderRadius: 0,
           outline: 'none',
@@ -83,23 +79,6 @@ function ColorNavbar(props) {
           borderRedius: '0',
         });
         setBtncolor({ color: '#52575d' });
-      } else if (
-        document.documentElement.scrollTop <= 500 ||
-        document.body.scrollTop <= 500
-      ) {
-        setNavbarColor('navbar-transparent');
-        setlogo(sure3);
-        setInputStyle({
-          placeholder: { color: 'white' },
-          borderRadius: 0,
-          outline: 'none',
-          borderWidth: '0 0 2px',
-          backgroundColor: 'transparent',
-          borderColor: '#fff',
-          borderStyle: 'solid',
-          borderRedius: '0',
-        });
-        setBtncolor({ color: '#fff' });
       }
     };
     window.addEventListener('scroll', updateNavbarColor);
@@ -129,7 +108,7 @@ function ColorNavbar(props) {
           <Container>
             <div className="navbar-translate">
               <NavbarBrand id="navbar-brand " to="/" tag={Link}>
-                <img src={logo} alt="TAYAKN Logo" width="30%" />
+                <img src={sureDark} alt="TAYAKN Logo" width="30%" />
               </NavbarBrand>
               <button
                 className="navbar-toggler"
@@ -153,8 +132,8 @@ function ColorNavbar(props) {
                     className="mr-sm-2  "
                     placeholder="Search"
                     type="text"
-                    style={inputStyle}
-                    inputStyle={{ color: 'red' }}
+                    style={inputstyle}
+                    inputstyle={{ color: 'red' }}
                   />
 
                   <Button
@@ -224,7 +203,7 @@ function ColorNavbar(props) {
           <Container>
             <div className="navbar-translate">
               <NavbarBrand id="navbar-brand " to="/" tag={Link}>
-                <img src={logo} alt="TAYAKN Logo" width="30%" />
+                <img src={sureDark} alt="TAYAKN Logo" width="30%" />
               </NavbarBrand>
               <button
                 className="navbar-toggler"
@@ -248,8 +227,8 @@ function ColorNavbar(props) {
                     className="mr-sm-2  "
                     placeholder="Search"
                     type="text"
-                    style={inputStyle}
-                    inputStyle={{ color: 'red' }}
+                    style={inputstyle}
+                    inputstyle={{ color: 'red' }}
                   />
 
                   <Button
@@ -324,7 +303,7 @@ function ColorNavbar(props) {
           <Container>
             <div className="navbar-translate">
               <NavbarBrand id="navbar-brand " to="/" tag={Link}>
-                <img src={logo} alt="TAYAKN Logo" width="30%" />
+                <img src={sureDark} alt="TAYAKN Logo" width="30%" />
               </NavbarBrand>
               <button
                 className="navbar-toggler"
@@ -348,8 +327,8 @@ function ColorNavbar(props) {
                     className="mr-sm-2  "
                     placeholder="Search"
                     type="text"
-                    style={inputStyle}
-                    inputStyle={{ color: 'red' }}
+                    style={inputstyle}
+                    inputstyle={{ color: 'red' }}
                   />
 
                   <Button
@@ -424,7 +403,7 @@ function ColorNavbar(props) {
           <Container>
             <div className="navbar-translate">
               <NavbarBrand id="navbar-brand " to="/" tag={Link}>
-                <img src={logo} alt="TAYAKN Logo" width="40%" />
+                <img src={sureDark} alt="TAYAKN Logo" width="40%" />
               </NavbarBrand>
               <button
                 className="navbar-toggler"
@@ -451,18 +430,19 @@ function ColorNavbar(props) {
                     style={{ fontFamily: 'Lemonada' }}
                     onClick={() => props.history.push('/login')}
                   >
-                    تسجيل دخول
-                  </Button>
-                  <Button
-                    className="btn-round"
-                    color="warning"
-                    style={{ fontFamily: 'Lemonada' }}
-                    onClick={() => props.history.push('/register')}
-                  >
                     سجل
                   </Button>
                 </NavItem>
-                <NavItem></NavItem>
+                <NavItem>
+                  <Button
+                    className="btn-round"
+                    outline
+                    color="warning"
+                    style={{ fontFamily: 'Lemonada' }}
+                  >
+                    تعرف على تَـــيَـقن
+                  </Button>
+                </NavItem>
               </Nav>
             </Collapse>
           </Container>
