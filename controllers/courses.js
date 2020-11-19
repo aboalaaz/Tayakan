@@ -2,6 +2,8 @@ const path = require('path');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Courses = require('../models/Courses');
+const Specialization = require('../models/Specialization');
+const Chapters = require('../models/Chapters');
 
 // @desc      Get all Courses
 // @route     GET /api/v1/courses
@@ -54,6 +56,11 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 exports.createCourse = asyncHandler(async (req, res, next) => {
   const course = await Courses.create(req.body);
 
+  let specialization = await Specialization.findByIdAndUpdate(
+    req.body.specialization,
+    { $push: { courses: [course._id] } }
+  );
+
   res.status(200).json({
     success: true,
     data: course,
@@ -71,6 +78,10 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`${req.parame.id}` + `:ID` + `لايوجد ماده بهذا `)
     );
   }
+  let specialization = await Specialization.findByIdAndUpdate(
+    req.body.specialization,
+    { $push: { courses: [course._id] } }
+  );
   course = await Courses.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -89,6 +100,13 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`${req.parame.id}` + `:ID` + `لايوجد ماده بهذا `)
     );
   }
+
+  let specialization = await Specialization.findByIdAndUpdate(
+    course.specialization._id,
+    { $pull: { courses: course._id } }
+  );
+  let chapters = await Chapters.findByIdAndRemove(course._id);
+  console.log(chapters);
   course.remove();
   res.status(200).json({
     success: true,

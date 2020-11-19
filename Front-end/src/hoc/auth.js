@@ -12,13 +12,16 @@ export default function (ComposedClass, reload, adminRoute = null) {
         if (await !response.payload.isAuth) {
           if (reload) {
             props.history.push('/login');
+            console.log(reload);
           }
         } else {
           if (adminRoute && !response.payload.isAdmin) {
             props.history.push('/');
+            console.log(adminRoute, response.payload.isAdmin);
           } else {
             if (reload === false) {
               props.history.push('/');
+              console.log('reload === false');
             }
           }
         }

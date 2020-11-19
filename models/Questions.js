@@ -5,43 +5,39 @@ const User = require('../models/User');
 const QuestionSchema = new mongoose.Schema({
   Type: {
     type: String,
-    enum: ['صح و خطا', 'اختيار من متعدد', 'فراغات'],
+    enum: ['TRUE OR FALSE', 'Fill in the blanks', 'Multiple-choice'],
   },
   question: {
-    type: mongoose.Mixed,
-    required: [true, `الرجاء كتابة السؤال`],
-  },
-  TorF: {
-    type: Boolean,
-  },
-  Answer: {
-    type: Object,
-    required: [true, 'الرجاء ادخال الاجابه الصحيحه'],
+    type: String,
   },
 
-  incurrectAnswerArray: {
-    type: [Object],
+  Answer: {
+    type: Object,
   },
-  // FillBlanks: {
-  //   type: Object,
-  // },
+  incurrectAnswerArray: [
+    {
+      type: String,
+    },
+  ],
+
   points: {
     type: Number,
-    default: 2,
   },
-  chapters: {
+  chapter: {
     type: mongoose.Schema.ObjectId,
     ref: 'Chapter',
-    required: [true, 'الرجاء ادخال الفصل الخاص بسؤال'],
+  },
+  course:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'Courses'
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  user: {
+  CreatedBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: true,
   },
 });
 

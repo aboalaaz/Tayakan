@@ -10,8 +10,8 @@ const SpecializationSchema = new mongoose.Schema({
   courses: [
     {
       type: mongoose.Schema.ObjectId,
-      required: [true, 'ادخل مواد التخصص'],
       ref: 'Courses',
+      // autopopulate: true,
     },
   ],
   photo: {
@@ -19,5 +19,6 @@ const SpecializationSchema = new mongoose.Schema({
     default: 'no-photo.jpg',
   },
 });
+SpecializationSchema.plugin(require('mongoose-autopopulate'));
 
 module.exports = mongoose.model('Specialization', SpecializationSchema);

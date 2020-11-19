@@ -8,51 +8,38 @@ import { Container } from "reactstrap";
 function PresentationHeader() {
   return (
     <>
-      <div className="wrapper">
+      <div className="wrapper" >
         <div
           className="page-header section-dark"
           style={{
             backgroundImage:
-              "url(" + require("assets/img/sections/pk-pro-cover.jpg") + ")",
+              "url(" + require("assets/img/Header1.jpg") + ")",
           }}
         >
           <div className="content-center">
             <Container>
-              <div className="title-brand">
-                <h1 className="presentation-title">Paper Kit React</h1>
-                <div className="type">PRO</div>
-                <div className="fog-low">
-                  <img
-                    alt="..."
-                    src={require("assets/img/sections/fog-low.png")}
-                  />
+            <div style={{paddingLeft: '30rem' , width: '80rem'}}>
+
+     
+                <div
+                  className="description"
+                 
+                >
+                 
+                 
+
+                  <div style={{  textAlign: 'center', color: 'black', fontSize: 60, opacity: '50%'}}>
+                    <span style={{ color: 'yellow', textShadow: '2px 2px 4px #000000'  }}>ʻʻ</span>Knowledge Measuring and Improving Test
+                    <span style={{ color: 'yellow', textShadow: '2px 2px 4px #000000' }}>ʼʼ</span>
+                  </div>
                 </div>
-                <div className="fog-low right">
-                  <img
-                    alt="..."
-                    src={require("assets/img/sections/fog-low.png")}
-                  />
-                </div>
-              </div>
-              <h2 className="presentation-subtitle text-center">
-                Make your mark with a premium Bootstrap 4, React, React Hooks
-                and Reactstrap UI Kit!
-              </h2>
+            </div>
             </Container>
           </div>
-          <h6 className="category category-absolute">
-            Designed and coded by{" "}
-            <a
-              href="https://www.creative-tim.com?ref=pkpr-presentation-header"
-              target="_blank"
-            >
-              <img
-                alt="..."
-                className="creative-tim-logo"
-                src={require("assets/img/creative-tim-white-slim2.png")}
-              />
-            </a>
-          </h6>
+         
+
+
+
         </div>
       </div>
     </>

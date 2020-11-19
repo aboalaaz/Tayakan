@@ -26,14 +26,14 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/auth/users
 // @access    Private/Admin
 exports.getUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id)
-    .populate({
-      path: 'courses',
-      select: 'name',
-    })
-    .populate({ path: 'specialization', select: 'specName' })
-    .populate({ path: 'article', select: 'title' })
-    .exec();
+  const user = await User.findById(req.params.id);
+  // .populate({
+  //   path: 'courses',
+  //   select: 'name',
+  // })
+  // .populate({ path: 'specialization', select: 'specName' })
+  // .populate({ path: 'article', select: 'title' })
+  // .exec();
 
   res.status(200).json({
     success: true,

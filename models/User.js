@@ -33,6 +33,7 @@ const UserSchema = new mongoose.Schema({
   specialization: {
     type: mongoose.Schema.ObjectId,
     ref: 'Specialization',
+    autopopulate: true,
   },
   article: [
     {
@@ -44,11 +45,16 @@ const UserSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.ObjectId,
       ref: 'Courses',
+      autopopulate: true,
     },
   ],
   photo: {
     type: String,
     default: 'no-photo.jpg',
+  },
+  bio: {
+    type: String,
+    maxlength: 50,
   },
   points: {
     type: Number,
@@ -62,6 +68,19 @@ const UserSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.ObjectId,
       ref: 'Comment',
+    },
+  ],
+  successAnswer: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Question',
+    },
+  ],
+  wrongAnswer: [
+    {
+      type: mongoose.Schema.ObjectId,
+      count: Number,
+      ref: 'Question',
     },
   ],
   resetPasswordToken: String,
@@ -85,6 +104,7 @@ UserSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
+UserSchema.plugin(require('mongoose-autopopulate'));
 UserSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
 
 module.exports = mongoose.model('User', UserSchema);

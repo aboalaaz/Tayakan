@@ -3,8 +3,10 @@ import Select from 'react-select';
 import axios from 'axios';
 import { USER_SERVER } from '../../components/Config';
 import { useSelector, useStore } from 'react-redux';
-import { Link, withRouter } from 'react-router-dom';
-
+import defaultImage from 'assets/img/image_placeholder.jpg';
+import defaultAvatar from 'assets/img/placeholder.jpg';
+import FormData from 'form-data';
+import Avatar from '../../components/Avatar/Avatar';
 // reactstrap components
 import {
   Button,
@@ -25,35 +27,56 @@ import {
   CardFooter,
   UncontrolledTooltip,
   Checkbox,
+  Badge,
 } from 'reactstrap';
-
+import GridItem from '../../components/Grid/GridItem';
 // core components
 import ColorNavbarFixed from 'components/Navbars/ColorNavbarFixed';
 import CourseCard from 'components/CourseCard';
-import FooterWhite from 'components/Footers/FooterWhite.js';
-import ImageUpload from 'components/CustomUpload/ImageUpload.js';
-import { set } from 'mongoose';
-import { createKeywordTypeNode } from 'typescript';
 
 function ProfilePage() {
   const user = useSelector((state) => state.user);
-
+  let [photos, setPhotos] = React.useState([]);
+  let [regestPhotos, setregestPhotos] = React.useState([]);
+  const [btntf, setbtntf] = React.useState(true);
   let [selectedCourses, setSelectedCourses] = React.useState([]); // المواد المتاحه من الكورس المختار
   const [successSelect, setSuccessSelect] = React.useState(null); //  التخصص المختار من قائمه التخصصات
   const [selectOptions, setSelectOptions] = React.useState([]); // قائمة التخصصات المتوفره
   const [userdata, setUserData] = React.useState([]); // بيانات الحساب المسجل
   const [coursesData, setCoursesData] = React.useState([]); // بيانات كل الماواد الخاصه باالتخصص المختار
-  const [userCoursesCard, setUserCoursesCard] = React.useState([]); // التخصصات المسجله مسبقا للمستخدم
-  const [isCardOpen, setisCardOpen] = React.useState(false); // اذا كان true يسمح بعرض قوائم المواد
-  const [
-    userspecializationCourses,
-    setUserspecializationCourses,
-  ] = React.useState([]); //
-
+  let [userCourses, setUserCourses] = React.useState([]); // التخصصات المسجله مسبقا للمستخدم
+  let [selectedCoursesName, setselectedCoursesName] = React.useState([]); // التخصصات المسجله مسبقا للمستخدم
+  const [file, setFile] = React.useState(null);
+  const [username, setUsername] = React.useState('');
+  const [bio, setBio] = React.useState('');
+  const avatar = true;
+  const [imagePreviewUrl, setImagePreviewUrl] = React.useState(
+    avatar ? defaultAvatar : defaultImage
+  );
+  const fileInput = React.createRef();
+  const handleImageChange = (e) => {
+    e.preventDefault();
+    let reader = new FileReader();
+    let file = e.target.files[0];
+    reader.onloadend = () => {
+      setFile(file);
+      setImagePreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+  const handleClick = () => {
+    fileInput.current.click();
+    setImagePreviewUrl(imagePreviewUrl);
+  };
+  const handleRemove = () => {
+    setFile(null);
+    setImagePreviewUrl(avatar ? defaultAvatar : defaultImage);
+    fileInput.current.value = null;
+  };
   if (user.userData && userdata.length === 0) {
     setUserData(user.userData);
+    setUserCourses(user.userData.courses);
   }
-  // console.log(userdata);
 
   //هنا يتم طلب التخصصات المتوفره من قاعدة البيانات
   const getOptions = async () => {
@@ -89,23 +112,24 @@ function ProfilePage() {
         console.log(error);
       });
   };
-  // طلب المواد التخصص على حسب تخصص المستخدم
-  // const getUserspecializationCourses = async () => {
-  //   if (userspecializationCourses.length < 1 && user.userData) {
-  //     const res = await axios.get(
-  //       `${USER_SERVER}/courses/?specialization=${userdata.specialization}`,
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     setUserspecializationCourses(res.data.data.data);
-  //   } else {
-  //     return null;
-  //   }
-  // };
+  let courseUser = [];
+  let newCourses = [];
 
-  console.log(userspecializationCourses);
-
+  if (user.userData) {
+    user.userData.courses.map((item) => {
+      courseUser = [...courseUser, item._id];
+    });
+  }
+  if (user.userData) {
+    coursesData.map((item) => {
+      if (courseUser.includes(item._id)) {
+        return null;
+      } else {
+        newCourses = [...newCourses, item];
+      }
+    });
+  }
+  // console.log(coursesData);
   // عند اختيار المستخدم التخصصات المراده يتم ارسالها لقاعدة البيانات
   const sendCourses = () => {
     axios
@@ -114,6 +138,8 @@ function ProfilePage() {
         {
           courses: selectedCourses,
           specialization: successSelect.value,
+          username: username,
+          bio: bio,
         },
         {
           withCredentials: true,
@@ -123,29 +149,31 @@ function ProfilePage() {
       .catch(function (error) {
         console.log(error);
       });
-    setisCardOpen(false);
   };
-  console.log(userspecializationCourses);
-  //جلب الكورسات المختاره سابقا
-  // const getUserCourses = async () => {
-  //   await userspecializationCourses.map((usercourses) => {
-  //     if (userdata.courses.includes(usercourses._id)) {
-  //       if (userCoursesCard.includes(usercourses)) {
-  //         return null;
-  //       } else {
-  //         setUserCoursesCard([...userCoursesCard, usercourses]);
-  //       }
-  //     } else {
-  //       return null;
-  //     }
-  //   });
+// clean
+  // const UploadPhoto = () => {
+  //   let formData = new FormData();
+  //   formData.set('file', file);
+  //   axios.put(
+  //     `${USER_SERVER}/me/${user.userData._id}/photo`,
+  //     formData,
+
+  //     { withCredentials: true }
+  //   );
   // };
 
+  const refreshPage = () => {
+    // window.location.reload(true);
+  };
+  // لاظهار التخصص اذا كام موجود في خانه التخصصات
+  const nameOfSpecUser = () => {
+    if (user.userData && user.userData.specialization) {
+      return user.userData.specialization.specName;
+    } else {
+      return 'CHOOSE SPECIALIZATION';
+    }
+  };
   React.useEffect(() => {
-    getUserspecializationCourses();
-    // getUserCourses();
-    document.documentElement.classList.remove('nav-open');
-
     document.body.classList.add('profile-page');
     return function cleanup() {
       document.body.classList.remove('profile-page');
@@ -154,15 +182,28 @@ function ProfilePage() {
   React.useEffect(() => {
     getOptions();
   }, []);
-  console.log(isCardOpen);
+  React.useEffect(() => {
+    if (successSelect) {
+      getCourses();
+    }
+  }, [successSelect]);
+  const handleUserInfo = (e) => {
+    setUsername(e.target.value);
+  };
+  // const handleUserBio = (e) => {
+  //   setBio(e.target.value);
+  // };
+
   return (
     <>
       <ColorNavbarFixed />
-      {/* <ProfilePageHeader /> */}
+
+      <nav class="navbar fixed-top navbar-light bg-light"></nav>
       <div
         className="profile-content section"
         style={{
-          backgroundColor: '#f6f4e6',
+          backgroundColor: '#fff',
+          // backgroundColor: '#f6f4e6',
           margin: 0,
           padding: 0,
         }}
@@ -170,33 +211,191 @@ function ProfilePage() {
         <Container
           style={{
             backgroundColor: '#fff',
-            paddingTop: '20rem',
+            paddingTop: '10rem',
             marginBottom: '-10rem',
           }}
         >
-          <Row>
+          
             <Col className="ml-auto mr-auto text-center" md="6">
-              <ImageUpload avatar />
+              <div style={{ paddingBottom: '2rem' }}>
+                <div className="fileinput text-center">
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    ref={fileInput}
+                  />
+
+                  {/* <Avatar
+                    image={imagePreviewUrl}
+                    bw={180}
+                    bh={180}
+                    iw={240}
+                    ih={240}
+                  />
+
+                  <div style={{ marginTop: '2rem' }}>
+                    {file === null ? (
+                      <Button
+                        className="btn-round"
+                        color="default"
+                        outline
+                        onClick={handleClick}
+                      >
+                        {avatar ? 'Add Photo' : 'Select image'}
+                      </Button>
+                    ) : (
+                      <span>
+                        <Button
+                          className="btn-round"
+                          outline
+                          color="default"
+                          onClick={handleClick}
+                        >
+                          Change
+                        </Button>
+                        {avatar ? <br /> : null}
+                        <Button
+                          color="danger"
+                          className="btn-round btn-link"
+                          onClick={handleRemove}
+                        >
+                          <i className="fa fa-times" />
+                          Remove
+                        </Button>
+                        <Button
+                          onClick={async () => {
+                            await UploadPhoto();
+                            refreshPage();
+                          }}
+                        >
+                          UPLOAD
+                        </Button>
+                      </span>
+                    )}
+                  </div> */}
+                </div>
+              </div>
               <FormGroup className="has-success">
                 <Input
                   className="form-control-success"
-                  // defaultValue="Success"
-                  placeholder="Username *"
+                  defaultValue={userdata.name}
+                  placeholder="Name *"
                   id="inputSuccess"
                   type="text"
+                  onChange={handleUserInfo}
                 />
               </FormGroup>
               <FormGroup className="has-success">
                 <Input
                   className="form-control-success"
-                  // defaultValue="Success"
-                  placeholder="Bio"
+                  defaultValue={userdata.username}
+                  placeholder="Last name"
                   id="inputSuccess"
-                  type="textarea"
+                  type="text"
+                  onChange={handleUserInfo}
                 />
               </FormGroup>
-              <h4>YOUR COURSES</h4>
-              {userCoursesCard ? console.log(userCoursesCard) : null}
+
+              <FormGroup className="has-success">
+                <Input
+                  className="form-control-success"
+                  defaultValue={userdata.email}
+                  placeholder="Email *"
+                  id="inputSuccess"
+                  type="email"
+                  onChange={handleUserInfo}
+                />
+              </FormGroup>
+
+              <h4 style={{ paddingBottom: '0.5rem' }}>YOUR COURSES</h4>
+            
+              <GridItem
+              container
+              direction="row-reverse"
+              justify="center"
+              alignItems="center"
+            >
+
+            
+
+           
+                  {user.userData && user.userData.courses.length !== 0 ? (
+                    userCourses.map((item, i) => {
+                      axios
+                        .get(
+                          `http://localhost:5000/uploads/${item.photo}`,
+                          {
+                            responseType: 'arraybuffer',
+                          },
+                          { withCredentials: true }
+                        )
+                        .then((response) => {
+                          let blob = new Blob([response.data], {
+                            type: response.headers['content-type'],
+                          });
+                          let img = URL.createObjectURL(blob);
+                          if (regestPhotos.length == i) {
+                            setregestPhotos([...regestPhotos, img]);
+                          }
+                        });
+                      
+                      return (
+                        
+
+                        <GridItem direction="row-reverse" >
+
+
+                        <CourseCard
+                          btnTrue={true}
+                          key={item._id}
+                          name={item.name}
+                          code={item.code}
+                          photo={regestPhotos[i]}
+                          width={300}
+                          height={229}
+                          click={() => {
+                            let NC = [];
+                            userCourses.map((course) => {
+                              if (course._id !== item._id) {
+                                NC = [...NC, course];
+                              } else {
+                                return null;
+                              }
+                            });
+
+                            setUserCourses(NC);
+                            axios
+                              .put(
+                                `${USER_SERVER}/me`,
+                                {
+                                  courses: NC,
+                                },
+                                {
+                                  withCredentials: true,
+                                }
+                              )
+                              .then((response) => response.data)
+                              .catch(function (error) {
+                                console.log(error);
+                              });
+                            window.location.reload();
+                          }}
+                        />
+                       
+                       </GridItem>
+                       
+                    
+                      );
+                    })
+                  ) : (
+                    <Container style={{ padding: '2rem' }}>
+                      NO COURSES
+                    </Container>
+                  )}
+                  
+            
+                   </GridItem>
+              
 
               <hr />
               <FormGroup>
@@ -207,98 +406,99 @@ function ProfilePage() {
                   value={successSelect}
                   onChange={function hendleOnChenga(value) {
                     setSuccessSelect(value);
-                    setisCardOpen(true);
                   }}
                   options={selectOptions}
-                  // placeholder={
-                  //   userdata
-                  //     ? userdata.specialization.name
-                  //     : 'CHOOSE SPECIALIZATION'
-                  // }
+                  placeholder={nameOfSpecUser()}
                 />
               </FormGroup>
 
-              {successSelect ? (
-                <Card data-color="purple">
-                  <CardBody className="text-center">
-                    <h5 className="card-category">{successSelect.label}</h5>
-                    <h5 className="card-category">{successSelect.code}</h5>
-                    <CardTitle tag="h5">
-                      <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                        "Good Design Is as Little Design as Possible"
-                      </a>
-                    </CardTitle>
-                    <p className="card-description">
-                      Design makes an important contribution to the preservation
-                      of the environment. It conserves resources and minimises
-                      physical and visual pollution throughout the lifecycle of
-                      the product....
-                    </p>
-                    <CardFooter className="text-center">
-                      {/* <Button
-                        className="btn-round btn-just-icon mr-1"
-                        color="neutral"
-                        href="#pablo"
-                        outline
-                        id="tooltip275070155"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <i className="fa fa-bookmark-o" />
-                      </Button>
-                      <UncontrolledTooltip delay={0} target="tooltip275070155">
-                        Bookmark
-                      </UncontrolledTooltip> */}
-                      <Button
-                        className="btn-neutral btn-round"
-                        color="default"
-                        href="#pablo"
-                        onClick={getCourses}
-                      >
-                        {/* <i className="fa fa-newspaper-o mr-1" /> */}
-                        Choose Subjects
-                      </Button>
-                    </CardFooter>
-                  </CardBody>
-                </Card>
-              ) : null}
-              {coursesData ? <hr style={{ padding: '1rem' }} /> : null}
+              {/* {newCourses ? <hr style={{ padding: '1rem' }} /> : null} */}
             </Col>
-          </Row>
+          
           <Container>
-            <Row>
-              {coursesData && isCardOpen
-                ? coursesData.map((coursesData) => {
-                    {
-                      return (
-                        <CourseCard
-                          key={coursesData._id}
-                          // id={coursesData._id}
-                          name={coursesData.name}
-                          code={coursesData.code}
-                          click={() => {
-                            if (selectedCourses.includes(coursesData._id)) {
-                              selectedCourses = selectedCourses.filter(
-                                (item) => {
-                                  return item !== coursesData._id;
-                                }
-                              );
-                              setSelectedCourses(selectedCourses);
-                            } else {
-                              setSelectedCourses([
-                                ...selectedCourses,
-                                coursesData._id,
-                              ]);
-                            }
-                            // //   setHowsckicked(coursesData.name);
-                          }}
-                        />
-                      );
-                    }
+          <GridItem
+              container
+              direction="row-reverse"
+              justify="center"
+              alignItems="center"
+            >
+              {newCourses
+                ? newCourses.map((newCourses, i) => {
+                    axios
+                      .get(
+                        `http://localhost:5000/uploads/${newCourses.photo}`,
+                        {
+                          responseType: 'arraybuffer',
+                        },
+                        { withCredentials: true }
+                      )
+                      .then((response) => {
+                        let blob = new Blob([response.data], {
+                          type: response.headers['content-type'],
+                        });
+                        let img = URL.createObjectURL(blob);
+                        if (photos.length == i) {
+                          setPhotos([...photos, img]);
+                        }
+                      });
+                    console.log(photos);
+
+                    return (
+                      <CourseCard
+                        key={newCourses._id}
+                        btnTrue={btntf}
+                        name={newCourses.name}
+                        code={newCourses.code}
+                        photo={photos[i]}
+                        width={300}
+                        height={229}
+                        click={() => {
+                          if (selectedCourses.includes(newCourses._id)) {
+                            selectedCourses = selectedCourses.filter((item) => {
+                              return item !== newCourses._id;
+                            });
+
+                            setSelectedCourses(selectedCourses);
+                          } else {
+                            setSelectedCourses([
+                              ...selectedCourses,
+                              newCourses._id,
+                            ]);
+                          }
+                          if (selectedCoursesName.includes(newCourses.name)) {
+                            selectedCoursesName = selectedCoursesName.filter(
+                              (item) => {
+                                return item !== newCourses.name;
+                              }
+                            );
+                            setbtntf(true);
+                            setselectedCoursesName(selectedCoursesName);
+                          } else {
+                            setbtntf(false);
+                            setselectedCoursesName([
+                              ...selectedCoursesName,
+                              newCourses.name,
+                            ]);
+                          }
+                        }}
+                      />
+                    );
                   })
                 : null}
-            </Row>
+                  </GridItem> 
+           
+
             <Col className="ml-auto mr-auto text-center" md="6">
-              {selectedCourses.length !== 0 && isCardOpen ? (
+              <div style={{ paddingBottom: '1rem' }}>
+                {selectedCoursesName.map((course) => {
+                  return (
+                    <Badge className="" color="success" pill>
+                      <small>{course} </small>{' '}
+                    </Badge>
+                  );
+                })}
+              </div>
+              {selectedCourses.length !== 0 ? (
                 <div>
                   {/* <h3>{selectedCourses}</h3> */}
                   <Button
@@ -306,7 +506,11 @@ function ProfilePage() {
                     color="success"
                     outline
                     type="button"
-                    onClick={sendCourses}
+                    onClick={() => {
+                      sendCourses();
+                      refreshPage();
+                      window.location.reload();
+                    }}
                   >
                     Done
                   </Button>
@@ -315,7 +519,7 @@ function ProfilePage() {
             </Col>
           </Container>
           <div style={{ paddingTop: '3rem' }}>
-            <FooterWhite />
+            
           </div>
         </Container>
       </div>

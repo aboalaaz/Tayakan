@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useStore } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import axios from 'axios';
+import Avatar from '../Avatar/Avatar';
 
 // nodejs library that concatenates strings
 import classnames from 'classnames';
@@ -38,6 +39,8 @@ function ColorNavbar(props) {
   const [navbarColor, setNavbarColor] = React.useState('');
   const [bodyClick, setBodyClick] = React.useState(false);
   const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [source, setSource] = React.useState(null);
+
   const [inputstyle, setInputStyle] = useState({
     borderRadius: 0,
     outline: 'none',
@@ -61,8 +64,30 @@ function ColorNavbar(props) {
       });
   };
   useEffect(() => {
-    let headroom = new Headroom(document.getElementById('navbar-main'));
-    headroom.init();
+    // if (user.userData) {
+    //   axios
+    //     .get(
+    //       `http://localhost:5000/uploads/photo_${user.userData._id}.JPG`,
+    //       {
+    //         responseType: 'arraybuffer',
+    //       },
+    //       { withCredentials: true }
+    //     )
+    //     .then((response) => {
+    //       let blob = new Blob([response.data], {
+    //         type: response.headers['content-type'],
+    //       });
+    //       let image = URL.createObjectURL(blob);
+    //       if (source === null) {
+    //         setSource(image);
+    //       } else {
+    //         return null;
+    //       }
+    //     });
+    // }
+
+    // let headroom = new Headroom(document.getElementById('navbar-main'));
+    // headroom.init();
     const updateNavbarColor = () => {
       if (
         document.documentElement.scrollTop >= 499 ||
@@ -127,7 +152,7 @@ function ColorNavbar(props) {
             </div>
             <Collapse navbar isOpen={collapseOpen}>
               <Nav className="ml-auto" navbar>
-                <Form className="form-inline mr">
+                {/* <Form className="form-inline mr">
                   <Input
                     className="mr-sm-2  "
                     placeholder="Search"
@@ -148,7 +173,7 @@ function ColorNavbar(props) {
                       className="nc-icon nc-zoom-split"
                     />
                   </Button>
-                </Form>
+                </Form> */}
 
                 <UncontrolledDropdown nav inNavbar>
                   <DropdownToggle className="mr-auth" color="default" caret nav>
@@ -158,7 +183,11 @@ function ColorNavbar(props) {
                     {user.userData.name}
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-danger" right>
-                    <DropdownItem to="/settings" tag={Link}>
+                    <DropdownItem to="/profile" tag={Link}>
+                      <i className="nc-icon nc-trophy" />
+                      profile
+                    </DropdownItem>
+                    <DropdownItem to="/dashboard" tag={Link}>
                       <i className="nc-icon nc-settings-gear-65" />
                       Dashboard
                     </DropdownItem>
@@ -168,10 +197,11 @@ function ColorNavbar(props) {
                       style={{ color: 'red', textAlign: 'center' }}
                       onClick={logoutHandler}
                     >
-                      تسجيل الخروج
+                       sign out
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
+                <Avatar image={source} bw={50} bh={50} iw={80} ih={80} />
               </Nav>
             </Collapse>
           </Container>
@@ -222,7 +252,7 @@ function ColorNavbar(props) {
             </div>
             <Collapse navbar isOpen={collapseOpen}>
               <Nav className="ml-auto" navbar>
-                <Form className="form-inline mr">
+                {/* <Form className="form-inline mr">
                   <Input
                     className="mr-sm-2  "
                     placeholder="Search"
@@ -243,7 +273,7 @@ function ColorNavbar(props) {
                       className="nc-icon nc-zoom-split"
                     />
                   </Button>
-                </Form>
+                </Form> */}
 
                 <UncontrolledDropdown nav inNavbar>
                   <DropdownToggle className="mr-auth" color="default" caret nav>
@@ -253,6 +283,10 @@ function ColorNavbar(props) {
                     {user.userData.name}
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-danger" right>
+                    <DropdownItem to="/profile" tag={Link}>
+                      <i className="nc-icon nc-trophy" />
+                      profile
+                    </DropdownItem>
                     <DropdownItem to="/settings" tag={Link}>
                       <i className="nc-icon nc-chart-bar-32" />
                       Dashboard
@@ -272,6 +306,7 @@ function ColorNavbar(props) {
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
+                <Avatar image={source} bw={50} bh={50} iw={80} ih={80} />
               </Nav>
             </Collapse>
           </Container>
@@ -322,7 +357,7 @@ function ColorNavbar(props) {
             </div>
             <Collapse navbar isOpen={collapseOpen}>
               <Nav className="ml-auto" navbar>
-                <Form className="form-inline mr">
+                {/* <Form className="form-inline mr">
                   <Input
                     className="mr-sm-2  "
                     placeholder="Search"
@@ -343,7 +378,7 @@ function ColorNavbar(props) {
                       className="nc-icon nc-zoom-split"
                     />
                   </Button>
-                </Form>
+                </Form> */}
 
                 <UncontrolledDropdown nav inNavbar>
                   <DropdownToggle className="mr-auth" color="default" caret nav>
@@ -353,6 +388,10 @@ function ColorNavbar(props) {
                     {user.userData.name}
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-danger" right>
+                    <DropdownItem to="/profile" tag={Link}>
+                      <i className="nc-icon nc-trophy" />
+                      ملف الشخصي
+                    </DropdownItem>
                     <DropdownItem to="/settings" tag={Link}>
                       <i className="nc-icon nc-trophy" />
                       إنجازك
@@ -376,6 +415,7 @@ function ColorNavbar(props) {
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
+                <Avatar image={source} bw={50} bh={50} iw={80} ih={80} />
               </Nav>
             </Collapse>
           </Container>

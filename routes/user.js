@@ -7,6 +7,9 @@ const {
   updateDetails,
   getMyID,
   UserPhotoUpload,
+  answers,
+  getResult,
+  resetChapter,
 } = require('../controllers/user');
 
 const router = express.Router({ mergeParams: true });
@@ -19,15 +22,19 @@ const {
 } = require('../config/auth');
 const { route } = require('./dashboard');
 
-router
-  .route('/')
-  .get(getMe, ensureAuthenticated)
-  .put(updateDetails, ensureAuthenticated);
+router.route('/').get(getMe).put(updateDetails, ensureAuthenticated);
 
 router.route('/myid').get(getMyID, forwardAuthenticated);
 
 router
-  .route('/:id/photo')
-  .put(ensureAuthenticated, roleAuthorization(['admin']), UserPhotoUpload);
+  .route('/answerd')
+  // .get(ensureAuthenticated, answers)
+  .put(ensureAuthenticated, answers);
+
+router.route('/result').post(ensureAuthenticated, getResult);
+
+router.route('/reset').put(ensureAuthenticated, resetChapter);
+
+router.route('/:id/photo').put(ensureAuthenticated, UserPhotoUpload);
 
 module.exports = router;

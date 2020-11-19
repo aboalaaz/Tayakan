@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async');
 const Specialization = require('../models/Specialization');
 const path = require('path');
 const fileUpload = require('express-fileupload');
+const Courses = require('../models/Courses');
 
 // @desc      Get all Specialization
 // @route     GET /api/v1/Specialization
@@ -42,7 +43,12 @@ exports.getSpecialization = asyncHandler(async (req, res, next) => {
 
 exports.createSpecialization = asyncHandler(async (req, res, next) => {
   const specialization = await Specialization.create(req.body);
-
+  req.body.courses.map(async (item) => {
+    let course = await Courses.findById(item);
+    course = await Courses.updateOne({
+      $push: { specialization: specialization._id },
+    });
+  });
   res.status(201).json({
     success: true,
     data: specialization,
@@ -58,14 +64,17 @@ exports.updateSpecialization = asyncHandler(async (req, res, next) => {
   if (!specialization) {
     return next(new ErrorResponse(`هذا التخصص غير موجود`, 401));
   }
+
   specialization = await Specialization.findByIdAndUpdate(
     req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
+    req.body
   );
+  req.body.courses.map(async (item) => {
+    let course = await Courses.findById(item);
+    course = await Courses.updateOne({
+      $push: { specialization: item },
+    });
+  });
   res.status(200).json({
     success: true,
     data: specialization,

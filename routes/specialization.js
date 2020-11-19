@@ -31,7 +31,7 @@ router
 
 router
   .route('/:id')
-  .get(ensureAuthenticated, getSpecialization)
+  .get(getSpecialization)
   .put(ensureAuthenticated, updateSpecialization, roleAuthorization(['admin']))
   .delete(
     ensureAuthenticated,

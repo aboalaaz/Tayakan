@@ -1,8 +1,5 @@
 /*!
- * Bootstrap v4.3.1 (https://getbootstrap.com/)
- * Copyright 2011-2019 The Bootstrap Authors
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+1
  */
 :root {
   --blue: #007bff;
@@ -42,6 +39,7 @@
 ::before {
   box-sizing: border-box;
 }
+
 html {
   font-family: sans-serif;
   line-height: 1.15;
@@ -9212,4 +9210,5 @@ a.text-dark:hover {
     border-color: #dee2e6;
   }
 }
+
 /*# sourceMappingURL=bootstrap.min.css.map */

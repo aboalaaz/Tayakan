@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useStore } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import axios from 'axios';
+import Avatar from '../Avatar/Avatar';
 
 // nodejs library that concatenates strings
 import classnames from 'classnames';
@@ -26,6 +27,8 @@ import {
   UncontrolledTooltip,
   Input,
   Form,
+  Col,
+  Row,
 } from 'reactstrap';
 // core components
 
@@ -34,11 +37,13 @@ import sureDark from '../../assets/img/sureDark.svg';
 
 function ColorNavbar(props) {
   const user = useSelector((state) => state.user);
+  const [source, setSource] = React.useState(null);
 
   const [navbarColor, setNavbarColor] = React.useState('navbar-transparent');
   const [bodyClick, setBodyClick] = React.useState(false);
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [logo, setlogo] = React.useState(sure3);
+
   // const [placeholder, setPlaceholder] = useState();
   const [inputStyle, setInputStyle] = useState({
     placeholder: { color: 'white' },
@@ -64,6 +69,28 @@ function ColorNavbar(props) {
       });
   };
   useEffect(() => {
+    // if (user.userData) {
+    //   axios
+    //     .get(
+    //       `http://localhost:5000/uploads/photo_${user.userData._id}.JPG`,
+    //       {
+    //         responseType: 'arraybuffer',
+    //       },
+    //       { withCredentials: true }
+    //     )
+    //     .then((response) => {
+    //       let blob = new Blob([response.data], {
+    //         type: response.headers['content-type'],
+    //       });
+    //       let image = URL.createObjectURL(blob);
+    //       if (source === null) {
+    //         setSource(image);
+    //         console.log(image);
+    //       } else {
+    //         return null;
+    //       }
+    //     });
+    // }
     let headroom = new Headroom(document.getElementById('navbar-main'));
     headroom.init();
     const updateNavbarColor = () => {
@@ -179,7 +206,11 @@ function ColorNavbar(props) {
                     {user.userData.name}
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-danger" right>
-                    <DropdownItem to="/settings" tag={Link}>
+                    <DropdownItem to="/profile" tag={Link}>
+                      <i className="nc-icon nc-trophy" />
+                      Profile
+                    </DropdownItem>
+                    <DropdownItem to="/dashboard" tag={Link}>
                       <i className="nc-icon nc-settings-gear-65" />
                       Dashboard
                     </DropdownItem>
@@ -189,10 +220,11 @@ function ColorNavbar(props) {
                       style={{ color: 'red', textAlign: 'center' }}
                       onClick={logoutHandler}
                     >
-                      تسجيل الخروج
+                       sign out
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
+                <Avatar image={source} bw={50} bh={50} iw={80} ih={80} />
               </Nav>
             </Collapse>
           </Container>
@@ -274,7 +306,11 @@ function ColorNavbar(props) {
                     {user.userData.name}
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-danger" right>
-                    <DropdownItem to="/settings" tag={Link}>
+                    <DropdownItem to="/profile" tag={Link}>
+                      <i className="nc-icon nc-trophy" />
+                      Profile
+                    </DropdownItem>
+                    <DropdownItem to="/dashboard" tag={Link}>
                       <i className="nc-icon nc-chart-bar-32" />
                       Dashboard
                     </DropdownItem>
@@ -293,6 +329,7 @@ function ColorNavbar(props) {
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
+                <Avatar image={source} bw={50} bh={50} iw={80} ih={80} />
               </Nav>
             </Collapse>
           </Container>
@@ -373,7 +410,12 @@ function ColorNavbar(props) {
                     </Badge>{' '}
                     {user.userData.name}
                   </DropdownToggle>
+
                   <DropdownMenu className="dropdown-danger" right>
+                    <DropdownItem to="/profile" tag={Link}>
+                      <i className="nc-icon nc-trophy" />
+                      الملف الشخصي
+                    </DropdownItem>
                     <DropdownItem to="/settings" tag={Link}>
                       <i className="nc-icon nc-trophy" />
                       إنجازك
@@ -397,6 +439,7 @@ function ColorNavbar(props) {
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
+                <Avatar image={source} bw={50} bh={50} iw={80} ih={80} />
               </Nav>
             </Collapse>
           </Container>
@@ -448,7 +491,7 @@ function ColorNavbar(props) {
                     className="btn-round"
                     outline
                     color="warning"
-                    style={{ fontFamily: 'Lemonada' }}
+                    style={{ }}
                     onClick={() => props.history.push('/login')}
                   >
                     تسجيل دخول
@@ -456,7 +499,7 @@ function ColorNavbar(props) {
                   <Button
                     className="btn-round"
                     color="warning"
-                    style={{ fontFamily: 'Lemonada' }}
+                    style={{  }}
                     onClick={() => props.history.push('/register')}
                   >
                     سجل

@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const ChapterSchema = new mongoose.Schema({
+  name: {
+    type: String,
+  },
   number: {
     type: Number,
     maxlength: [2, 'ادخل رقم الفصل بشكل الصحيح'],
-    unique: [true, `هذا الشبتر موجود `],
   },
   question: [
     {
@@ -17,5 +19,6 @@ const ChapterSchema = new mongoose.Schema({
     ref: 'Courses',
   },
 });
+ChapterSchema.plugin(require('mongoose-autopopulate'));
 
 module.exports = mongoose.model('Chapter', ChapterSchema);

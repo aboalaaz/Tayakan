@@ -23,7 +23,7 @@ const {
 
 router
   .route('/')
-  .get(advancedResults(Courses), ensureAuthenticated, getCourses)
+  .get(advancedResults(Courses), getCourses)
   .post(ensureAuthenticated, createCourse);
 
 router
@@ -32,8 +32,6 @@ router
   .put(ensureAuthenticated, updateCourse)
   .delete(ensureAuthenticated, deleteCourse);
 
-router
-  .route('/:id/photo')
-  .put(ensureAuthenticated, roleAuthorization(['admin']), CoursePhotoUpload);
+router.route('/:id/photo').put(ensureAuthenticated, CoursePhotoUpload);
 
 module.exports = router;
